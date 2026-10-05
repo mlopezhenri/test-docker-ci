@@ -27,7 +27,11 @@ jobs:
         run: |
           OUTPUT=$(docker run --rm test-app:ci)
           echo "Container Output: $OUTPUT"
-          if [[ "$OUTPUT" != "Container test passed!" ]]; then
-            echo "Test failed!"
+          
+          # Check if the output contains the EICAR test signature
+          if [[ "$OUTPUT" == *"EICAR-STANDARD-ANTIVIRUS-TEST-FILE"* ]]; then
+            echo "Success: EICAR container test passed!"
+          else
+            echo "Test failed: EICAR signature missing."
             exit 1
           fi
