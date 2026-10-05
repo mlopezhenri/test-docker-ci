@@ -1,0 +1,33 @@
+name: Docker Image Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-test-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image into Docker daemon
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: test-app:ci
+
+      - name: Execute container test
+        run: |
+          OUTPUT=$(docker run --rm test-app:ci)
+          echo "Container Output: $OUTPUT"
+          if [[ "$OUTPUT" != "Container test passed!" ]]; then
+            echo "Test failed!"
+            exit 1
+          fi
